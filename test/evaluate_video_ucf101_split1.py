@@ -27,9 +27,9 @@ parser.add_argument('--debug-mode', type=bool, default=True,
 parser.add_argument('--dataset', default='UCF101', choices=['UCF101','Kinetics'],
                     help="path to dataset")
 parser.add_argument('--clip-length', default=16,
-                    help="define the length of each input sample.")    
+                    help="define the length of each input sample.")
 parser.add_argument('--frame-interval', type=int, default=2,
-                    help="define the sampling interval between frames.")    
+                    help="define the sampling interval between frames.")
 parser.add_argument('--task-name', type=str, default='../exps/<your_tesk_name>',
                     help="name of current task, leave it empty for using folder name")
 parser.add_argument('--model-dir', type=str, default="./",
@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
     # creat model
     sym_net, input_config = get_symbol(name=args.network, **dataset_cfg)
-    
+
     # network
     if torch.cuda.is_available():
         cudnn.benchmark = True
@@ -105,7 +105,7 @@ if __name__ == '__main__':
                        criterion=criterion,
                        model_prefix=args.model_prefix)
     net.load_checkpoint(epoch=args.load_epoch)
-    
+
     # data iterator:
     data_root = "../dataset/{}".format(args.dataset)
     normalize = transforms.Normalize(mean=input_config['mean'], std=input_config['std'])
@@ -127,7 +127,7 @@ if __name__ == '__main__':
                       name='test',
                       return_item_subpath=True,
                       )
-                      
+
     eval_iter = torch.utils.data.DataLoader(val_loader,
                       batch_size=args.batch_size,
                       shuffle=True,
@@ -148,7 +148,7 @@ if __name__ == '__main__':
     duplication = 1
     softmax = torch.nn.Softmax(dim=1)
 
-    total_round = 999999999 # change this part accordingly if you do not want an inf loop
+    total_round = 40 # change this part accordingly if you do not want an inf loop  ljf 999999999 -> 40
     for i_round in range(total_round):
         i_batch = 0
         logging.info("round #{}/{}".format(i_round, total_round))
@@ -174,8 +174,8 @@ if __name__ == '__main__':
                     avg_score[video_subpath_i][3] += 1
                     duplication = 0.92 * duplication + 0.08 * avg_score[video_subpath_i][3]
                 else:
-                    avg_score[video_subpath_i] = [torch.LongTensor(target_i.numpy().copy()), 
-                                                  torch.FloatTensor(loss_i.numpy().copy()), 
+                    avg_score[video_subpath_i] = [torch.LongTensor(target_i.numpy().copy()),
+                                                  torch.FloatTensor(loss_i.numpy().copy()),
                                                   torch.FloatTensor(output_i.numpy().copy()),
                                                   1] # the last one is counter
 

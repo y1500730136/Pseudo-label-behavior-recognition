@@ -111,6 +111,7 @@ class static_model(object):
         if self.net.training:
             input_var = torch.autograd.Variable(data, requires_grad=False)
             target_var = torch.autograd.Variable(target, requires_grad=False)
+
         else:
             input_var = torch.autograd.Variable(data, volatile=True)
             target_var = torch.autograd.Variable(target, volatile=True)
@@ -118,10 +119,19 @@ class static_model(object):
         output = self.net(input_var)
         if hasattr(self, 'criterion') and self.criterion is not None \
             and target is not None:
-            loss = self.criterion(output, target_var)
+            # loss = self.criterion(output, target_var)
+            cond = (target_var >= 0)
+            nnz = torch.nonzero(cond)
+            nbsup = len(nnz)
+            if nbsup > 0:
+                masked_outputs = torch.index_select(output, 0, nnz.view(nbsup))
+                masked_labels = target_var[cond]
+                loss = self.criterion(masked_outputs, masked_labels)
+            else:
+                loss = None
         else:
             loss = None
-        return [output], [loss]
+        return output, loss
 
 
 """
@@ -243,19 +253,28 @@ class model(static_model):
                 update_start_time = time.time()
 
                 # [forward] making next step
+                # cond = (target >= 0)
+                # nnz = torch.nonzero(cond)
+                # nbsup = len(nnz)
+                # if nbsup > 0:
+                #     data = torch.index_select(data, 0, nnz.view(nbsup))
+                #     target = target[cond]
+                # else:
+                #     continue
                 outputs, losses = self.forward(data, target)
 
                 # [backward]
-                optimizer.zero_grad()
-                for loss in losses: loss.backward()
-                self.adjust_learning_rate(optimizer=optimizer,
-                                          lr=lr_scheduler.update())
-                optimizer.step()
+                if losses is not None:
+                    optimizer.zero_grad()
+                    losses.backward()
+                    self.adjust_learning_rate(optimizer=optimizer,
+                                              lr=lr_scheduler.update())
+                    optimizer.step()
 
-                # [evaluation] update train metric
-                metrics.update([output.data.cpu() for output in outputs],
-                               target.cpu(),
-                               [loss.data.cpu() for loss in losses])
+                    # [evaluation] update train metric
+                    metrics.update([outputs.data.cpu()],
+                                   target.cpu(),
+                                   [losses.data.cpu()])
 
                 # timing each batch
                 sum_sample_elapse += time.time() - batch_start_time
@@ -303,9 +322,9 @@ class model(static_model):
 
                     outputs, losses = self.forward(data, target)
 
-                    metrics.update([output.data.cpu() for output in outputs],
+                    metrics.update([outputs.data.cpu()],
                                     target.cpu(),
-                                   [loss.data.cpu() for loss in losses])
+                                   [losses.data.cpu()])
 
                     sum_forward_elapse += time.time() - forward_start_time
                     sum_sample_elapse += time.time() - batch_start_time

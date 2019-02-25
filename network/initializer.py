@@ -65,7 +65,8 @@ def init_3d_from_2d_dict(net, state_dict, method='inflation'):
             # normalize
             src = src/float(dshape[2])
             src = src.view(dshape[0],dshape[1], 1, dshape[3],dshape[4])
-            dst.copy_(src, broadcast=True)
+            # dst.copy_(src, broadcast=True) # ljf https://github.com/cypw/PyTorch-MFNet/issues/5
+            dst.copy_(src)
         elif method == 'random':
             dst = torch.FloatTensor(dshape)
             tmp = torch.FloatTensor(src.shape)
@@ -121,7 +122,8 @@ def init_3d_from_2d_dict(net, state_dict, method='inflation'):
                         param = param.view(dst_param_shape)
                 assert dst_param_shape == param.shape, \
                     "Initilizer:: error({}): {} != {}".format(name, dst_param_shape, param.shape)
-            net.state_dict()[name].copy_(param, broadcast=False)
+            # net.state_dict()[name].copy_(param, broadcast=False)
+            net.state_dict()[name].copy_(param) # ljf https://github.com/cypw/PyTorch-MFNet/issues/5
             src_state_keys.remove(name)
             dst_state_keys.remove(name)
 

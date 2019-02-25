@@ -32,7 +32,7 @@ parser.add_argument('--model-dir', type=str, default="./exps/models",
 parser.add_argument('--log-file', type=str, default="",
                     help="set logging file.")
 # device
-parser.add_argument('--gpus', type=str, default="0,1,2,3,4,5,6,7",
+parser.add_argument('--gpus', type=str, default="0,1,2,3",
                     help="define gpu id")
 # algorithm
 parser.add_argument('--network', type=str, default='MFNet_3D',
@@ -46,7 +46,7 @@ parser.add_argument('--network', type=str, default='MFNet_3D',
 parser.add_argument('--pretrained_2d', type=bool, default=True,
                     help="load default 2D pretrained model.")
 parser.add_argument('--pretrained_3d', type=str, 
-                    default='./network/pretrained/vY5_866M_Kinetics_v47_fm16-it123_ep-0020.pth',
+                    default='./network/pretrained/MFNet3D_Kinetics-400_72.8.pth',
                     help="load default 3D pretrained model.")
 parser.add_argument('--resume-epoch', type=int, default=-1,
                     help="resume train")

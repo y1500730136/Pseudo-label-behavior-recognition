@@ -34,6 +34,7 @@ def train_model(sym_net, model_prefix, dataset, input_conf,
                                                    mean=input_conf['mean'],
                                                    std=input_conf['std'],
                                                    seed=iter_seed)
+
     # wapper (dynamic model)
     net = model(net=sym_net,
                 criterion=torch.nn.CrossEntropyLoss().cuda(),

@@ -119,7 +119,8 @@ class Loss(EvalMetric):
         assert losses is not None, "Loss undefined."
         for loss in losses:
             self.sum_metric += float(loss.numpy().sum())
-            self.num_inst += loss.shape[0]
+            # self.num_inst += loss.shape[0] # ljf https://github.com/cypw/PyTorch-MFNet/issues/5
+            self.num_inst += loss.numpy().size
 
 
 if __name__ == "__main__":
