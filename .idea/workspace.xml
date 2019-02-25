@@ -1,53 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a495dc45-f46d-4a7d-8c57-3ce71fb737db" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/data/iterator_factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/iterator_factory.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/HMDB51/raw/data" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/HMDB51/raw/list_cvt/hmdb51_split1_others.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/HMDB51/raw/list_cvt/hmdb51_split1_test.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/HMDB51/raw/list_cvt/hmdb51_split1_train.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/HMDB51/raw/list_cvt/hmdb51_split2_others.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/HMDB51/raw/list_cvt/hmdb51_split2_test.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/HMDB51/raw/list_cvt/hmdb51_split2_train.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/HMDB51/raw/list_cvt/hmdb51_split3_others.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/HMDB51/raw/list_cvt/hmdb51_split3_test.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/HMDB51/raw/list_cvt/hmdb51_split3_train.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/HMDB51/raw/list_cvt/mapping_table.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/HMDB51/scripts/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/HMDB51/scripts/convert_videos.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/Kinetics/raw/data" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/Kinetics/raw/list" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/Kinetics/raw/list_cvt/kinetics_test.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/Kinetics/raw/list_cvt/kinetics_test_avi.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/Kinetics/raw/list_cvt/kinetics_train.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/Kinetics/raw/list_cvt/kinetics_train_avi.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/Kinetics/raw/list_cvt/kinetics_val.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/Kinetics/raw/list_cvt/kinetics_val_avi.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/Kinetics/raw/list_cvt/mapping_table.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/Kinetics/scripts/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/Kinetics/scripts/convert_videos.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/Kinetics/scripts/remove_spaces.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/UCF101/raw/data" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/UCF101/raw/list_cvt/testlist01.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/UCF101/raw/list_cvt/testlist02.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/UCF101/raw/list_cvt/testlist03.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/UCF101/raw/list_cvt/trainlist01.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/UCF101/raw/list_cvt/trainlist02.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/UCF101/raw/list_cvt/trainlist03.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/config.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/exps/logs/placeholder" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/exps/models/placeholder" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/exps/pretrained/README" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/initializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/network/initializer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/evaluate_video_ucf101_split1.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/evaluate_video_ucf101_split1.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/metric.py" beforeDir="false" afterPath="$PROJECT_DIR$/train/metric.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/train/model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train_hmdb51.py" beforeDir="false" afterPath="$PROJECT_DIR$/train_hmdb51.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/train_model.py" afterDir="false" />
-    </list>
+    <list default="true" id="a495dc45-f46d-4a7d-8c57-3ce71fb737db" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -87,10 +41,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="model.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="model.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/train/model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1743">
+            <state relative-caret-position="1877">
               <caret line="119" column="70" lean-forward="true" selection-start-line="119" selection-start-column="70" selection-end-line="119" selection-end-column="70" />
               <folding>
                 <element signature="e#29#38#0" expanded="true" />
@@ -99,11 +53,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="iterator_factory.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="iterator_factory.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/data/iterator_factory.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2016">
-              <caret line="255" column="21" lean-forward="true" selection-start-line="255" selection-start-column="21" selection-end-line="255" selection-end-column="21" />
+            <state relative-caret-position="864">
+              <caret line="261" column="41" selection-start-line="261" selection-start-column="41" selection-end-line="261" selection-end-column="41" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -662,22 +616,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/data/iterator_factory.py">
+    <entry file="file://$PROJECT_DIR$/train/model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2016">
-          <caret line="255" column="21" lean-forward="true" selection-start-line="255" selection-start-column="21" selection-end-line="255" selection-end-column="21" />
+        <state relative-caret-position="1877">
+          <caret line="119" column="70" lean-forward="true" selection-start-line="119" selection-start-column="70" selection-end-line="119" selection-end-column="70" />
           <folding>
-            <element signature="e#0#9#0" expanded="true" />
+            <element signature="e#29#38#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/train/model.py">
+    <entry file="file://$PROJECT_DIR$/data/iterator_factory.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1743">
-          <caret line="119" column="70" lean-forward="true" selection-start-line="119" selection-start-column="70" selection-end-line="119" selection-end-column="70" />
+        <state relative-caret-position="864">
+          <caret line="261" column="41" selection-start-line="261" selection-start-column="41" selection-end-line="261" selection-end-column="41" />
           <folding>
-            <element signature="e#29#38#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
