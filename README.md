@@ -6,13 +6,22 @@ This project uses semi-supervised learning, conducts research in human behavior 
 
 ## Video Recognition (HMDB51)
 
-| Labeling ratio | Params | Unselected pseudo label | Selected pseudo label |
+| Labeling ratio | Supervised learning | Unselected pseudo label | Selected pseudo label |
 | :------------: | :----: | :---------------------: | :-------------------: |
 |       5%       | 24.37% |         25.22%          |        26.73%         |
 |      15%       | 56.92% |         60.19%          |        61.63%         |
 |      30%       | 63.92% |         66.47%          |        67.01%         |
-|      100%      | 71.96% |                         |                       |
+|      100%      | 71.96% |           -             |             -         |
 
 \* accuracy averaged on hmdb51 split1.
 
+## Line chart
+
+Training loss line chart of HMDB51 15% labeled dataset drawn with TensorboardX:
+
 ![Train loss](https://github.com/y1500730136/Pseudo-label-behavior-recognition/blob/yxy/image/4_1.png)
+
+Training accuracy line chart of HMDB51 15% labeled dataset drawn with TensorboardX:
+
+![Train accuracy](https://github.com/y1500730136/Pseudo-label-behavior-recognition/blob/yxy/image/4_2.png)
+
