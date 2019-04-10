@@ -84,7 +84,7 @@ def get_ucf101(data_root='./dataset/UCF101',
                                            interval=train_interval,
                                            speed=[1.0, 1.0],
                                            seed=(seed+0))
-    train = VideoIter(video_prefix=os.path.join(data_root, 'raw', 'data'),
+    train = VideoIter(video_prefix=os.path.join(data_root, 'raw', 'data-x360'),
                       txt_list=os.path.join(data_root, 'raw', 'list_cvt', 'trainlist01.txt'),
                       sampler=train_sampler,
                       force_color=True,
@@ -107,7 +107,7 @@ def get_ucf101(data_root='./dataset/UCF101',
                                                interval=val_interval,
                                                fix_cursor=True,
                                                shuffle=True)
-    val   = VideoIter(video_prefix=os.path.join(data_root, 'raw', 'data'),
+    val   = VideoIter(video_prefix=os.path.join(data_root, 'raw', 'data-x360'),
                       txt_list=os.path.join(data_root, 'raw', 'list_cvt', 'testlist01.txt'),
                       sampler=val_sampler,
                       force_color=True,
@@ -240,23 +240,42 @@ def creat(name, batch_size, num_workers=16, **kwargs):
 
     if name.upper() == 'UCF101':
         train, val = get_ucf101(**kwargs)
+        class_num = 101
     elif name.upper() == 'HMDB51':
         train, val = get_hmdb51(**kwargs)
+        move_style_train, _ = get_hmdb51(data_root='/home/yanxinyi/yxy/PyTorch-MFNet/dataset/hmdb51_style')
+        class_num = 51
     elif name.upper() == 'KINETICS':
         train, val = get_kinetics(**kwargs)
+        class_num = 400
     elif name.upper() == 'ANVIEW':
         train, val = get_anview(**kwargs)
+        class_num = 0
     else:
         assert NotImplementedError("iter {} not found".format(name))
 
-    n = len(train)
-    k = 510
-    print("Use train data number is {}.".format(k))
+    train.video_list.extend(move_style_train.video_list)
 
-    np.random.seed(1)
-    test = np.random.choice(range(n), n - k, replace=False)
-    for i in test:
-        train.video_list[i][1] = -1
+    # # Fixed 10 samples per class
+    # k = 10
+    # logging.info("The number of each type of training samples is {}.".format(k))
+    # np.random.seed(2)
+    # for i in range(class_num):
+    #     one_class = []
+    #     for j in range(len(train)):
+    #         if train.video_list[j][1] == i:
+    #             one_class.append(j)
+    #     choose_class = np.random.choice(one_class, len(one_class) - k, replace=False)
+    #     for z in choose_class:
+    #         train.video_list[z][1] = -1
+
+    # # random choose 510 samples
+    # k = 2861
+    # logging.info("The number of training samples is {}.".format(k))
+    # np.random.seed(2)
+    # test = np.random.choice(range(len(train)), len(train) - k, replace=False)
+    # for i in test:
+    #     train.video_list[i][1] = -1
 
     train_loader = torch.utils.data.DataLoader(train,
         batch_size=batch_size, shuffle=True,

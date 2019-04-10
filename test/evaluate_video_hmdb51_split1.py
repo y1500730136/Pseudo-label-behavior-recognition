@@ -10,6 +10,7 @@ import argparse
 
 import torch
 import torch.backends.cudnn as cudnn
+from tensorboardX import SummaryWriter
 
 import dataset
 from train.model import static_model
@@ -32,19 +33,21 @@ parser.add_argument('--frame-interval', type=int, default=2,
                     help="define the sampling interval between frames.")
 parser.add_argument('--task-name', type=str, default='PyTorch-MFNet',
                     help="name of current task, leave it empty for using folder name")
-parser.add_argument('--model-dir', type=str, default="../test/models-log/hmdb51_partin_510/",
+parser.add_argument('--model-dir', type=str, default="../logs/hmdb51/move_style1",
                     help="set logging file.")
-parser.add_argument('--log-file', type=str, default="./eval-hmdb51-split1.log",
+# parser.add_argument('--model-dir', type=str, default="../exps/models/",
+#                     help="set logging file.")
+parser.add_argument('--log-file', type=str, default="../logs/hmdb51/move_style1/test_hmdb51_split1.log",
                     help="set logging file.")
 # device
-parser.add_argument('--gpus', type=int, default=0,
+parser.add_argument('--gpus', type=int, default=3,
                     help="define gpu id")
 # algorithm
 parser.add_argument('--network', type=str, default='mfnet_3d',
                     choices=['mfnet_3d'],
                     help="chose the base network")
 # evaluation
-parser.add_argument('--load-epoch', type=int, default=100,
+parser.add_argument('--load-epoch', type=int, default=50,
                     help="resume trained model")
 parser.add_argument('--batch-size', type=int, default=8,
                     help="batch size")
@@ -83,6 +86,9 @@ if __name__ == '__main__':
     set_logger(log_file=args.log_file, debug_mode=args.debug_mode)
     logging.info("Start evaluation with args:\n" +
                  json.dumps(vars(args), indent=4, sort_keys=True))
+
+    log_dir = '../logs/hmdb51/move_style1'
+    writer = SummaryWriter(log_dir=log_dir)
 
     # set device states
     os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpus)  # before using torch
@@ -150,10 +156,11 @@ if __name__ == '__main__':
     duplication = 1
     softmax = torch.nn.Softmax(dim=1)
 
-    total_round = 40  # change this part accordingly if you do not want an inf loop  ljf 999999999 -> 40
+    total_round = 50  # change this part accordingly if you do not want an inf loop  ljf 999999999 -> 40
     for i_round in range(total_round):
         i_batch = 0
         logging.info("round #{}/{}".format(i_round, total_round))
+        test_acc = []
         for data, target, video_subpath in eval_iter:
             batch_start_time = time.time()
 
@@ -188,6 +195,7 @@ if __name__ == '__main__':
                     target, loss, pred, _ = video_info
                     metrics.update([pred], target, [loss])
                 name_value = metrics.get_name_value()
+                test_acc.append(name_value[1][0][1])
                 logging.info("{:.1f}%, {:.1f} \t| Batch [0,{}]    \tAvg: {} = {:.5f}, {} = {:.5f}, {} = {:.5f}".format(
                     float(100 * i_batch) / eval_iter.__len__(), \
                     duplication, \
@@ -196,6 +204,7 @@ if __name__ == '__main__':
                     name_value[1][0][0], name_value[1][0][1], \
                     name_value[2][0][0], name_value[2][0][1]))
             i_batch += 1
+        writer.add_scalar('test_acc', sum(test_acc)/len(test_acc), i_round)
 
     # finished
     logging.info("Evaluation Finished!")

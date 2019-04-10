@@ -25,11 +25,11 @@ parser.add_argument('--train-frame-interval', type=int, default=2,
                     help="define the sampling interval between frames.")
 parser.add_argument('--val-frame-interval', type=int, default=2,
                     help="define the sampling interval between frames.")
-parser.add_argument('--task-name', type=str, default='',
+parser.add_argument('--task-name', type=str, default='train_hmdb51_split1',
                     help="name of current task, leave it empty for using folder name")
-parser.add_argument('--model-dir', type=str, default="./exps/models",
+parser.add_argument('--model-dir', type=str, default="./test/models-log/move_style1",
                     help="set logging file.")
-parser.add_argument('--log-file', type=str, default="",
+parser.add_argument('--log-file', type=str, default="./test/models-log/move_style1/train_hmdb51_split1.log",
                     help="set logging file.")
 # device
 parser.add_argument('--gpus', type=str, default="0,1,2,3",
@@ -45,9 +45,12 @@ parser.add_argument('--network', type=str, default='MFNet_3D',
 # - step 4: resume if `resume_epoch' >= 0
 parser.add_argument('--pretrained_2d', type=bool, default=True,
                     help="load default 2D pretrained model.")
-parser.add_argument('--pretrained_3d', type=str, 
+parser.add_argument('--pretrained_3d', type=str,
                     default='./network/pretrained/MFNet3D_Kinetics-400_72.8.pth',
                     help="load default 3D pretrained model.")
+# parser.add_argument('--pretrained_3d', type=str,
+#                     default='./test/models-log/hmdb51_510/PyTorch-MFNet_ep-0050.pth',
+#                     help="load default 3D pretrained model.")
 parser.add_argument('--resume-epoch', type=int, default=-1,
                     help="resume train")
 # optimization
@@ -63,7 +66,7 @@ parser.add_argument('--lr-factor', type=float, default=0.1,
                     help="reduce the learning with factor")
 parser.add_argument('--save-frequency', type=float, default=1,
                     help="save once after N epochs")
-parser.add_argument('--end-epoch', type=int, default=100,
+parser.add_argument('--end-epoch', type=int, default=50,
                     help="maxmium number of training epoch")
 parser.add_argument('--random-seed', type=int, default=1,
                     help='random seed (default: 1)')
@@ -81,11 +84,13 @@ def autofill(args):
         args.task_name = os.path.basename(os.getcwd())
     if not args.log_file:
         if os.path.exists("./exps/logs"):
-            args.log_file = "./exps/logs/{}_at-{}.log".format(args.task_name, socket.gethostname())
+            args.log_file = "./exps/logs/{}.log".format(args.task_name)
+            if os.path.exists(args.log_file):
+                os.remove(args.log_file)
         else:
-            args.log_file = ".{}_at-{}.log".format(args.task_name, socket.gethostname())
+            args.log_file = "./exps/logs/{}.log".format(args.task_name)
     # fixed
-    args.model_prefix = os.path.join(args.model_dir, args.task_name)
+    args.model_prefix = os.path.join(args.model_dir, 'PyTorch-MFNet')
     return args
 
 def set_logger(log_file='', debug_mode=False):

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="yanxinyi@125.217.41.40:22">
+  <component name="PublishConfigData" autoUpload="Always" serverName="amax6">
     <serverData>
-      <paths name="yanxinyi@125.217.41.40:22">
+      <paths name="amax6">
         <serverdata>
           <mappings>
             <mapping deploy="/home/yanxinyi/yxy/PyTorch-MFNet" local="$PROJECT_DIR$" web="/" />

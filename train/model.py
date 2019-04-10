@@ -7,6 +7,11 @@ import socket
 import logging
 
 import torch
+import torch.nn.functional as F
+from torch.autograd import Variable
+import numpy as np
+import shutil
+from tensorboardX import SummaryWriter
 
 from . import metric
 from . import callback
@@ -26,6 +31,7 @@ class static_model(object):
 
         # init params
         self.net = net
+        self.start_epoch = 0
         self.model_prefix = model_prefix
         self.criterion = criterion
 
@@ -99,39 +105,92 @@ class static_model(object):
                         save_path)
             logging.info("Checkpoint (model & optimizer) saved to: {}".format(save_path))
 
+    def unlabeled_weight(self, epoch, t1, t2, af):
+        if epoch == 0 and self.callback_kwargs['batch'] == 0:
+            logging.info("t1: {}, t2: {}, af: {}".format(t1, t2, af))
+        alpha = 0.0
+        if epoch > t1:
+            alpha = (epoch - t1) / (t2 - t1) * af
+            if epoch > t2:
+                alpha = af
+        return alpha
 
-    def forward(self, data, target):
+
+    def forward(self, true_data, true_target, epoch=0, val_acc=[]):
         """ typical forward function with:
             single output and single loss
         """
-        # data = data.float().cuda(async=True)
-        # target = target.cuda(async=True)
-        data = data.float().cuda()
-        target = target.cuda()
+
+        true_data = true_data.float().cuda()
+        true_target = true_target.cuda()
+
+        softmax = torch.nn.Softmax()
+
         if self.net.training:
-            input_var = torch.autograd.Variable(data, requires_grad=False)
-            target_var = torch.autograd.Variable(target, requires_grad=False)
-
-        else:
-            input_var = torch.autograd.Variable(data, volatile=True)
-            target_var = torch.autograd.Variable(target, volatile=True)
-
-        output = self.net(input_var)
-        if hasattr(self, 'criterion') and self.criterion is not None \
-            and target is not None:
-            # loss = self.criterion(output, target_var)
-            cond = (target_var >= 0)
+            cond = (true_target >= 0)
             nnz = torch.nonzero(cond)
-            nbsup = len(nnz)
-            if nbsup > 0:
-                masked_outputs = torch.index_select(output, 0, nnz.view(nbsup))
-                masked_labels = target_var[cond]
-                loss = self.criterion(masked_outputs, masked_labels)
+            labeled_bs = len(nnz)
+
+            input_var = Variable(true_data, requires_grad=False)
+            target_var = Variable(true_target, requires_grad=False)
+
+            true_output = self.net(input_var)
+
+            if hasattr(self, 'criterion') and self.criterion is not None \
+                    and true_target is not None:
+
+                labeled_loss = torch.sum(self.criterion(true_output, target_var)) / labeled_bs if labeled_bs > 0 else 0
+
+                # with torch.no_grad():
+                #     pseudo_labeled = true_output.max(1)[1]
+                #     pseudo_labeled[nnz.view(-1)] = -1
+                #
+                #     test = softmax(true_output)
+                #     test1 = -np.sort(-test.cpu().numpy(), 1)
+                #
+                #     # 未标注数据最大预测概率小于0.2直接pass
+                #     for i in range(test1.shape[0]):
+                #         # if self.start_epoch != 0:
+                #         #     print(test1[i][:3])
+                #         # if test1[i][0] < 0.6:
+                #         if test1[i][0] - test1[i][1] < 0.2:
+                #         # if test1[i][1] + test1[i][2] > 0.1:
+                #             pseudo_labeled[i] = -1
+                #
+                #     unlabeled_bs = len(torch.nonzero(pseudo_labeled >= 0))
+                #
+                # # unlabeled_loss = torch.sum(target_var.eq(-1).float() * self.criterion(true_output, pseudo_labeled)) / (true_data.size(0)-labeled_bs +1e-10)
+                # unlabeled_loss = torch.sum(self.criterion(true_output, pseudo_labeled)) / (unlabeled_bs + 1e-10)
+                #
+                # w = 0
+                # if epoch > 2:
+                #     if sum(val_acc[epoch - 3: epoch]) / len(val_acc[epoch - 3: epoch]) > 0.20000 and self.start_epoch == 0:
+                #         self.start_epoch = epoch
+                #     if self.start_epoch != 0:
+                #         w = self.unlabeled_weight(epoch, self.start_epoch, self.start_epoch + 20, 1)
+                # loss = labeled_loss + w * unlabeled_loss
+
+                w = 0
+                loss = labeled_loss
+
             else:
                 loss = None
+
+            return true_output, target_var, loss, w
+
         else:
-            loss = None
-        return output, loss
+            input_var = Variable(true_data, volatile=True)
+            target_var = Variable(true_target, volatile=True)
+
+            true_output = self.net(input_var)
+
+            if hasattr(self, 'criterion') and self.criterion is not None \
+                    and true_target is not None:
+                loss = self.criterion(true_output, target_var)
+            else:
+                loss = None
+
+            return true_output, loss
 
 
 """
@@ -214,7 +273,10 @@ class model(static_model):
     """
     Optimization
     """
-    def fit(self, train_iter, optimizer, lr_scheduler,
+    def fit(self,
+            train_iter,
+            optimizer,
+            lr_scheduler,
             eval_iter=None,
             metrics=metric.Accuracy(topk=1),
             epoch_start=0,
@@ -233,9 +295,21 @@ class model(static_model):
         start the main loop
         """
         pause_sec = 0.
+        w = 0
+        val_acc = []
+
+        log_dir = './logs/hmdb51/move_style1'
+        if os.path.exists(log_dir):
+            shutil.rmtree(path=log_dir)
+        writer = SummaryWriter(log_dir=log_dir)
+
         for i_epoch in range(epoch_start, epoch_end):
             self.callback_kwargs['epoch'] = i_epoch
             epoch_start_time = time.time()
+
+            # w = weight_schedule(i_epoch, epoch_end, 30., -5., 510, n_samples)
+            # print('unsupervised loss weight : {}'.format(w))
+            # w = Variable(torch.FloatTensor([w]).cuda(), requires_grad=False)
 
             ###########
             # 1] TRAINING
@@ -245,42 +319,39 @@ class model(static_model):
             sum_sample_inst = 0
             sum_sample_elapse = 0.
             sum_update_elapse = 0
+            batch_stop = 0
             batch_start_time = time.time()
+            loss_list = []
             logging.info("Start epoch {:d}:".format(i_epoch))
-            for i_batch, (data, target) in enumerate(train_iter):
+            logging.info("The current value of w is {}".format(w))
+            # for i_batch, (true_data, true_target) in enumerate(train_iter):
+            for i_batch, (true_data, true_target) in enumerate(train_iter):
                 self.callback_kwargs['batch'] = i_batch
 
                 update_start_time = time.time()
 
-                # [forward] making next step
-                # cond = (target >= 0)
-                # nnz = torch.nonzero(cond)
-                # nbsup = len(nnz)
-                # if nbsup > 0:
-                #     data = torch.index_select(data, 0, nnz.view(nbsup))
-                #     target = target[cond]
-                # else:
-                #     continue
-                outputs, losses = self.forward(data, target)
+                # output, loss, w = self.forward(true_data, true_target, epoch=i_epoch, val_acc=val_acc)
+                output, true_target, loss, w = self.forward(true_data, true_target, epoch=i_epoch, val_acc=val_acc)
 
                 # [backward]
-                if losses is not None:
+                if loss is not None and loss != 0:
+                    loss_list.append(loss.data.cpu().detach())
                     optimizer.zero_grad()
-                    losses.backward()
+                    loss.backward()
                     self.adjust_learning_rate(optimizer=optimizer,
                                               lr=lr_scheduler.update())
                     optimizer.step()
 
                     # [evaluation] update train metric
-                    metrics.update([outputs.data.cpu()],
-                                   target.cpu(),
-                                   [losses.data.cpu()])
+                    metrics.update([output.data.cpu()],
+                                   true_target.cpu(),
+                                   [loss.data.cpu()])
 
                 # timing each batch
                 sum_sample_elapse += time.time() - batch_start_time
                 sum_update_elapse += time.time() - update_start_time
                 batch_start_time = time.time()
-                sum_sample_inst += data.shape[0]
+                sum_sample_inst += true_data.shape[0]
 
                 if (i_batch % self.step_callback_freq) == 0:
                     # retrive eval results and reset metic
@@ -298,6 +369,9 @@ class model(static_model):
             ###########
             # 2] END OF EPOCH
             ###########
+
+            writer.add_scalar('train_loss', sum(loss_list) / len(loss_list), i_epoch)
+
             self.callback_kwargs['epoch_elapse'] = time.time() - epoch_start_time
             self.callback_kwargs['optimizer_dict'] = optimizer.state_dict()
             self.epoch_end_callback()
@@ -320,11 +394,11 @@ class model(static_model):
 
                     forward_start_time = time.time()
 
-                    outputs, losses = self.forward(data, target)
+                    output, loss = self.forward(data, target)
 
-                    metrics.update([outputs.data.cpu()],
+                    metrics.update([output.data.cpu()],
                                     target.cpu(),
-                                   [losses.data.cpu()])
+                                   [loss.data.cpu()])
 
                     sum_forward_elapse += time.time() - forward_start_time
                     sum_sample_elapse += time.time() - batch_start_time
@@ -336,5 +410,9 @@ class model(static_model):
                 self.callback_kwargs['update_elapse'] = sum_forward_elapse / sum_sample_inst
                 self.callback_kwargs['namevals'] = metrics.get_name_value()
                 self.step_end_callback()
+
+                val_acc_batch = metrics.get_name_value()[1][0][1]
+                writer.add_scalar('val_acc', val_acc_batch, i_epoch)
+                val_acc.append(val_acc_batch)
 
         logging.info("Optimization done!")

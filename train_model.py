@@ -4,6 +4,7 @@ import logging
 import torch
 import torchvision
 import torch.backends.cudnn as cudnn
+from torch.utils.data import DataLoader, TensorDataset
 import torch.distributed as dist
 
 from data import iterator_factory
@@ -35,9 +36,16 @@ def train_model(sym_net, model_prefix, dataset, input_conf,
                                                    std=input_conf['std'],
                                                    seed=iter_seed)
 
+    # fake_data = torch.load('./fake/hmdb51_fake_data.pth')
+    # fake_data = fake_data.transpose(2, 1)
+    # logging.info('The number of fake data is {}'.format(fake_data.shape[0]))
+    # fake_label = torch.full((fake_data.shape[0],), -1)
+    # fake_dataset = TensorDataset(fake_data, fake_label)
+    # fake_iter = DataLoader(dataset=fake_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
+
     # wapper (dynamic model)
     net = model(net=sym_net,
-                criterion=torch.nn.CrossEntropyLoss().cuda(),
+                criterion=torch.nn.CrossEntropyLoss(ignore_index=-1, reduce=False).cuda(),
                 model_prefix=model_prefix,
                 step_callback_freq=50,
                 save_checkpoint_freq=save_frequency,
@@ -110,9 +118,9 @@ def train_model(sym_net, model_prefix, dataset, input_conf,
     cudnn.benchmark = True
 
     net.fit(train_iter=train_iter,
-            eval_iter=eval_iter,
             optimizer=optimizer,
             lr_scheduler=lr_scheduler,
+            eval_iter=eval_iter,
             metrics=metrics,
             epoch_start=epoch_start,
             epoch_end=end_epoch,)
